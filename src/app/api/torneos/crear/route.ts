@@ -6,8 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 const crearTorneoSchema = z.object({
   titulo: z.string().trim().min(1).max(100),
   descripcion: z.string().trim().min(1).max(1200),
-  juego_id: z.string().uuid().optional(),
-  categoria_id: z.string().uuid().optional(),
+  juego_id: z.string().uuid().optional().nullable(),
+  categoria_id: z.string().uuid().optional().nullable(),
   direccion: z.string().trim().min(1).max(500),
   fecha_inicio: z.string().min(1, "La fecha es requerida"),
   cupo_maximo: z.coerce.number().int().min(2, "Mínimo 2 jugadores").max(1024),
