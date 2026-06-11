@@ -11,8 +11,8 @@ export async function resolvePostLoginPath(
     supabase.from("tiendas").select("id").eq("owner_id", userId).maybeSingle(),
   ]);
 
-  if (profile?.user_role === "admin") return "/admin";
   if (tienda) return "/tienda/dashboard";
+  if (profile?.user_role === "admin") return "/admin";
   if (profile?.user_role === "jugador") return "/jugador/inscripciones";
   return "/torneos";
 }

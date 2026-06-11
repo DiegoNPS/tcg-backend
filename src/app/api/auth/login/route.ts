@@ -8,6 +8,9 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const PASSWORD_LOGIN_ERROR =
+  "No pudimos iniciar sesión con correo y contraseña. Si tu cuenta fue creada con Google, usa Continuar con Google; si tiene contraseña, revisa los datos e intenta nuevamente.";
+
 export async function POST(request: Request) {
   let body: unknown;
 
@@ -31,7 +34,13 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 401 });
+    return Response.json(
+      {
+        error: PASSWORD_LOGIN_ERROR,
+        code: "password-login-failed",
+      },
+      { status: 401 },
+    );
   }
 
   const {

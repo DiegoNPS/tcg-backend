@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 const crearTorneoSchema = z.object({
   titulo: z.string().trim().min(1).max(100),
   descripcion: z.string().trim().min(1).max(1200),
+  tcg_juego: z.string().trim().optional().nullable(),
+  categoria: z.string().trim().optional().nullable(),
   juego_id: z.string().uuid().optional().nullable(),
   categoria_id: z.string().uuid().optional().nullable(),
   direccion: z.string().trim().min(1).max(500),
@@ -17,6 +19,26 @@ const crearTorneoSchema = z.object({
   longitud: z.number().optional().nullable(),
   imagen_url: z.string().optional().nullable(),
 });
+
+async function resolveLookupId(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  table: "juegos" | "categorias_torneo",
+  id: string | null | undefined,
+  key: string | null | undefined,
+) {
+  if (id) return id;
+
+  const normalizedKey = key?.trim();
+  if (!normalizedKey) return null;
+
+  const { data } = await (supabase
+    .from(table)
+    .select("id")
+    .eq("key", normalizedKey)
+    .maybeSingle() as any);
+
+  return (data as { id?: string } | null)?.id ?? null;
+}
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -67,8 +89,18 @@ export async function POST(request: Request) {
     return Response.json({ error: "Fecha no válida" }, { status: 400 });
   }
 
-  const juego_id: string | null = parsed.data.juego_id ?? null;
-  const categoria_id: string | null = parsed.data.categoria_id ?? null;
+  const juego_id = await resolveLookupId(
+    supabase,
+    "juegos",
+    parsed.data.juego_id,
+    parsed.data.tcg_juego,
+  );
+  const categoria_id = await resolveLookupId(
+    supabase,
+    "categorias_torneo",
+    parsed.data.categoria_id,
+    parsed.data.categoria,
+  );
 
   const { data, error } = await supabase
     .from("torneos")

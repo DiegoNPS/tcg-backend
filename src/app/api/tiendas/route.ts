@@ -8,6 +8,26 @@ const createTiendaSchema = z.object({
   ciudad: z.string().trim().min(1).max(200),
 });
 
+function resolveRpcUuid(value: unknown): string | null {
+  if (typeof value === "string") return value;
+
+  if (Array.isArray(value)) {
+    const first = value[0];
+    if (typeof first === "string") return first;
+    if (first && typeof first === "object" && "id" in first) {
+      const id = (first as { id?: unknown }).id;
+      return typeof id === "string" ? id : null;
+    }
+  }
+
+  if (value && typeof value === "object" && "id" in value) {
+    const id = (value as { id?: unknown }).id;
+    return typeof id === "string" ? id : null;
+  }
+
+  return null;
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -33,11 +53,15 @@ export async function POST(request: Request) {
     return Response.json({ error: "Datos de tienda inválidos" }, { status: 400 });
   }
 
-  // resolve ciudad id
-  const { data: ciudadRes, error: ciudadErr } = await supabase.rpc("get_or_create_ciudad", { p_nombre: parsed.data.ciudad } as any);
+  const { data: ciudadRes, error: ciudadErr } = await supabase.rpc("get_or_create_ciudad", {
+    p_nombre: parsed.data.ciudad,
+  } as any);
   if (ciudadErr) return Response.json({ error: "No se pudo resolver la ciudad" }, { status: 500 });
-  const ciudadResAny = ciudadRes as any;
-  const ciudad_id = Array.isArray(ciudadResAny) ? ciudadResAny[0]?.id ?? null : ciudadResAny?.id ?? null;
+  const ciudad_id = resolveRpcUuid(ciudadRes);
+
+  if (!ciudad_id) {
+    return Response.json({ error: "No se pudo resolver la ciudad" }, { status: 500 });
+  }
 
   const { data, error } = await supabase
     .from("tiendas")
@@ -50,16 +74,17 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
+    if (error.code === "23505") {
+      return Response.json({ error: "Tu usuario ya tiene una tienda asociada" }, { status: 409 });
+    }
+
     return Response.json({ error: error.message }, { status: 400 });
   }
 
-  // expand ciudad name for compatibility
-    const ciudadName = ciudad_id
-      ? ((await supabase.from("ciudades").select("nombre").eq("id", ciudad_id).maybeSingle()) as any).data?.nombre
-      : null;
+  const ciudadName = ((await supabase.from("ciudades").select("nombre").eq("id", ciudad_id).maybeSingle()) as any).data?.nombre ?? null;
 
-    const payload = (data ?? {}) as any;
-    payload.ciudad = ciudadName;
+  const payload = (data ?? {}) as any;
+  payload.ciudad = ciudadName;
 
-    return Response.json({ data: payload }, { status: 201 });
+  return Response.json({ data: payload }, { status: 201 });
 }

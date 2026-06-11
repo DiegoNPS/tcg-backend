@@ -15,7 +15,7 @@ const registerSchema = z.object({
   country: z.string().trim().min(2).max(100),
   latitude: z.number().nullable().optional(),
   longitude: z.number().nullable().optional(),
-  acceptTerms: z.boolean(),
+  acceptTerms: z.literal(true),
   receiveNews: z.boolean().default(false),
   nextPath: z.string().optional(),
 });
