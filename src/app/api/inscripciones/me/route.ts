@@ -1,3 +1,4 @@
+import createAdminClient from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 type TorneoRow = {
@@ -16,6 +17,7 @@ type TiendaRow = {
 
 export async function GET(request: Request) {
   const supabase = await createClient();
+  const metadataClient = createAdminClient() ?? supabase;
   const {
     data: { user },
     error: userError,
@@ -67,7 +69,7 @@ export async function GET(request: Request) {
     ) as string[];
 
     if (tiendaIds.length > 0) {
-      const { data: tiendas } = await supabase
+      const { data: tiendas } = await metadataClient
         .from("tiendas")
         .select("id, nombre, ciudad_id")
         .in("id", tiendaIds);
@@ -83,7 +85,7 @@ export async function GET(request: Request) {
       ) as string[];
 
       if (ciudadIds.length > 0) {
-        const { data: ciudades } = await supabase
+        const { data: ciudades } = await metadataClient
           .from("ciudades")
           .select("id, nombre")
           .in("id", ciudadIds);

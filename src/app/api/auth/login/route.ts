@@ -6,7 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 const loginSchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(1),
+  nextPath: z.string().optional(),
 });
+
+function sanitizeNextPath(value?: string) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return null;
+  return value;
+}
 
 const PASSWORD_LOGIN_ERROR =
   "No pudimos iniciar sesión con correo y contraseña. Si tu cuenta fue creada con Google, usa Continuar con Google; si tiene contraseña, revisa los datos e intenta nuevamente.";
@@ -47,7 +53,8 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const redirectTo = user ? await resolvePostLoginPath(supabase, user.id) : "/torneos";
+  const requestedPath = sanitizeNextPath(parsed.data.nextPath);
+  const redirectTo = requestedPath ?? (user ? await resolvePostLoginPath(supabase, user.id) : "/torneos");
 
   return Response.json(
     { message: "Sesión iniciada correctamente", redirectTo },

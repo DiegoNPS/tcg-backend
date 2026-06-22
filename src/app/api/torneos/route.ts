@@ -2,6 +2,7 @@
 import { z } from "zod";
 
 import { CATEGORIA_OPTIONS } from "@/lib/constants";
+import createAdminClient from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 import type { CategoriaTorneo } from "@/types/database.types";
@@ -45,6 +46,7 @@ export async function GET(request: Request) {
     categoria && isCategoriaTorneo(categoria) ? categoria : undefined;
 
   const supabase = await createClient();
+  const metadataClient = createAdminClient() ?? supabase;
 
   let juegoId: string | null = null;
   if (juegoFiltro) {
@@ -62,11 +64,11 @@ export async function GET(request: Request) {
 
   let tiendaIdsForCiudad: string[] | null = null;
   if (ciudad) {
-    const { data: cids } = await supabase.from("ciudades").select("id").ilike("nombre", `%${ciudad}%`);
+    const { data: cids } = await metadataClient.from("ciudades").select("id").ilike("nombre", `%${ciudad}%`);
     const ciudadIds = (cids ?? []).map((r: any) => r.id);
     if (ciudadIds.length === 0) return Response.json({ data: [] }, { status: 200 });
 
-    const { data: tiendas } = await supabase.from("tiendas").select("id").in("ciudad_id", ciudadIds);
+    const { data: tiendas } = await metadataClient.from("tiendas").select("id").in("ciudad_id", ciudadIds);
     tiendaIdsForCiudad = (tiendas ?? []).map((t: any) => t.id);
     if (tiendaIdsForCiudad.length === 0) return Response.json({ data: [] }, { status: 200 });
   }
@@ -95,7 +97,7 @@ export async function GET(request: Request) {
   let tiendas: any[] = [];
 
   if (tiendaIds.length > 0) {
-    const { data: tiendasData, error: tiendasError } = await supabase
+    const { data: tiendasData, error: tiendasError } = await metadataClient
       .from("tiendas")
       .select("id, nombre, ciudad_id")
       .in("id", tiendaIds);
@@ -119,19 +121,19 @@ export async function GET(request: Request) {
 
   const juegosMap = new Map<string, string>();
   if (juegoIdsAll.length > 0) {
-    const { data: juegos } = await supabase.from("juegos").select("id, key").in("id", juegoIdsAll);
+    const { data: juegos } = await metadataClient.from("juegos").select("id, key").in("id", juegoIdsAll);
     (juegos ?? []).forEach((j: any) => juegosMap.set(j.id, j.key));
   }
 
   const categoriasMap = new Map<string, string>();
   if (categoriaIdsAll.length > 0) {
-    const { data: categorias } = await supabase.from("categorias_torneo").select("id, key").in("id", categoriaIdsAll);
+    const { data: categorias } = await metadataClient.from("categorias_torneo").select("id, key").in("id", categoriaIdsAll);
     (categorias ?? []).forEach((c: any) => categoriasMap.set(c.id, c.key));
   }
 
   const ciudadesMap = new Map<string, string>();
   if (ciudadIdsAll.length > 0) {
-    const { data: ciudades } = await supabase.from("ciudades").select("id, nombre").in("id", ciudadIdsAll);
+    const { data: ciudades } = await metadataClient.from("ciudades").select("id, nombre").in("id", ciudadIdsAll);
     (ciudades ?? []).forEach((c: any) => ciudadesMap.set(c.id, c.nombre));
   }
 

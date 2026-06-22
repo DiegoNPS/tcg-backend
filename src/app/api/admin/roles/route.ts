@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { getAdminContext } from "@/lib/auth/admin";
 import createAdminClient from "@/lib/supabase/admin";
 
 const schema = z.object({
@@ -8,6 +9,16 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  const { user, isAdmin } = await getAdminContext();
+
+  if (!user) {
+    return Response.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  if (!isAdmin) {
+    return Response.json({ error: "Acceso restringido" }, { status: 403 });
+  }
+
   const admin = createAdminClient();
 
   if (!admin) {

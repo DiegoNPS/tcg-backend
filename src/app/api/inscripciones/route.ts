@@ -51,6 +51,27 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: torneo, error: torneoError } = await supabase
+    .from("torneos")
+    .select("id, publicado, fecha_inicio")
+    .eq("id", parsed.data.torneo_id)
+    .maybeSingle();
+
+  if (torneoError || !torneo || !torneo.publicado) {
+    return Response.json(
+      { error: "El torneo no está disponible", code: "torneo-invalido" },
+      { status: 404 },
+    );
+  }
+
+  const startsAt = new Date(torneo.fecha_inicio).getTime();
+  if (!Number.isFinite(startsAt) || startsAt <= Date.now()) {
+    return Response.json(
+      { error: "Las inscripciones de este torneo están cerradas", code: "torneo-cerrado" },
+      { status: 409 },
+    );
+  }
+
   const { data, error } = await supabase
     .from("tournament_entries")
     .insert({
@@ -74,6 +95,13 @@ export async function POST(request: Request) {
       return Response.json(
         { error: "Solo jugadores pueden inscribirse", code: "no-jugador" },
         { status: 403 },
+      );
+    }
+
+    if (/tournament-not-open|tournament-already-started/i.test(error.message)) {
+      return Response.json(
+        { error: "Las inscripciones de este torneo están cerradas", code: "torneo-cerrado" },
+        { status: 409 },
       );
     }
 

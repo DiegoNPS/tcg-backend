@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from "zod";
 
+import createAdminClient from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 type RouteContext = {
@@ -18,6 +19,7 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   const supabase = await createClient();
+  const metadataClient = createAdminClient() ?? supabase;
 
   const { data: torneo, error } = await supabase
     .from("torneos")
@@ -37,17 +39,17 @@ export async function GET(_request: Request, context: RouteContext) {
     return Response.json({ error: "Torneo no encontrado" }, { status: 404 });
   }
 
-  const { data: tienda } = await supabase
+  const { data: tienda } = await metadataClient
     .from("tiendas")
     .select("nombre, ciudad_id")
     .eq("id", torneoAny.tienda_id)
     .maybeSingle();
 
   // Resolve names
-  const juego = torneoAny.juego_id ? await supabase.from("juegos").select("key").eq("id", torneoAny.juego_id).maybeSingle() : null;
-  const categoria = torneoAny.categoria_id ? await supabase.from("categorias_torneo").select("key").eq("id", torneoAny.categoria_id).maybeSingle() : null;
+  const juego = torneoAny.juego_id ? await metadataClient.from("juegos").select("key").eq("id", torneoAny.juego_id).maybeSingle() : null;
+  const categoria = torneoAny.categoria_id ? await metadataClient.from("categorias_torneo").select("key").eq("id", torneoAny.categoria_id).maybeSingle() : null;
   const ciudad = tienda?.ciudad_id
-    ? await supabase.from("ciudades").select("nombre").eq("id", tienda.ciudad_id).maybeSingle()
+    ? await metadataClient.from("ciudades").select("nombre").eq("id", tienda.ciudad_id).maybeSingle()
     : null;
 
   return Response.json(

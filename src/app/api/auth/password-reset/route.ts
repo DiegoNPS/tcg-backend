@@ -22,10 +22,9 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const appBase = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const callbackUrl = new URL(AUTH_CALLBACK_PATH, appBase);
+  callbackUrl.searchParams.set("next", "/reset-password");
 
   try {
-    // send reset email
-    // supabase-js exposes resetPasswordForEmail
     const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
       redirectTo: callbackUrl.toString(),
     });

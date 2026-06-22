@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { AUTH_CALLBACK_PATH } from "@/lib/auth/routes";
-import createAdminClient from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 const registerSchema = z.object({
@@ -44,21 +43,10 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
-  const admin = createAdminClient();
   const appBase = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const callbackUrl = new URL(AUTH_CALLBACK_PATH, appBase);
   callbackUrl.searchParams.set("next", sanitizeNextPath(parsed.data.nextPath));
   const nextPath = sanitizeNextPath(parsed.data.nextPath);
-
-  if (admin) {
-    const { data: usersData } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    const normalizedEmail = parsed.data.email.trim().toLowerCase();
-    const existingUser = usersData.users.find((user) => (user.email ?? "").trim().toLowerCase() === normalizedEmail);
-
-    if (existingUser) {
-      return Response.json({ error: "Este correo ya está en uso." }, { status: 409 });
-    }
-  }
 
   const userMetadata = {
     display_name: parsed.data.displayName,

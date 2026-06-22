@@ -90,25 +90,19 @@ export async function PUT(request: Request) {
     );
   }
 
-  const toUpsert = {
-    user_id: user.id,
-    display_name: parsed.data.display_name ?? null,
-    // preserve existing role (do not write user_role from client)
-    user_role: currentProfile?.user_role ?? undefined,
-  } as {
-    user_id: string;
-    display_name?: string | null;
-    user_role?: "jugador" | "tienda" | "admin" | undefined;
-  };
-
   const { data, error } = await supabase
     .from("profiles")
-    .upsert(toUpsert, { onConflict: "user_id" })
+    .update({ display_name: parsed.data.display_name ?? null })
+    .eq("user_id", user.id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return Response.json({ error: "No se pudo actualizar el perfil" }, { status: 400 });
+  }
+
+  if (!data) {
+    return Response.json({ error: "Perfil no encontrado" }, { status: 404 });
   }
 
   return Response.json({ data }, { status: 200 });
