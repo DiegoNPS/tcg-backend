@@ -39,7 +39,14 @@ npm run build
 npm run start
 npm run lint
 npm run typecheck
+npm test           # unitarias, integración y mocks
+npm run test:load  # requiere k6 y backend levantado
+npm run test:stress
 ```
+
+El alcance, los casos y los criterios de aprobación están en
+[`docs/PLAN_DE_PRUEBAS.md`](docs/PLAN_DE_PRUEBAS.md). Los últimos resultados
+verificados se registran en [`docs/REPORTE_DE_EJECUCION.md`](docs/REPORTE_DE_EJECUCION.md).
 
 ## Endpoints
 
