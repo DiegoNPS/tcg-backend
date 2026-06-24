@@ -6,8 +6,8 @@
 
 | Suite | Resultado | Evidencia resumida |
 | --- | --- | --- |
-| Unitarias + integración + mocks | Aprobada | 3 archivos, 11 pruebas aprobadas, 0 fallidas |
-| Criterios de aceptación | Aprobada | 3 pruebas Chromium aprobadas, 0 fallidas, 14,0 s |
+| Unitarias + integración + mocks | Aprobada | 5 archivos, 16 pruebas aprobadas, 0 fallidas |
+| Criterios de aceptación | Aprobada | 11 pruebas Chromium aprobadas, 0 fallidas |
 | TypeScript backend | Aprobada | `tsc --noEmit`, 0 errores |
 | TypeScript frontend | Aprobada | `tsc --noEmit`, 0 errores |
 | ESLint backend | Aprobada | 0 errores |

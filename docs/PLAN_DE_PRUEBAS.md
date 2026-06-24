@@ -11,7 +11,7 @@ Validar las reglas de autenticación y redirección, los contratos HTTP principa
 | Unitarias | UT-01 a UT-04: destino por rol y existencia de tienda | Vitest | Cada perfil llega a su panel; la tienda tiene prioridad | `npm run test:unit` |
 | Integración | IT-01 a IT-05: JSON, validación, autenticación y redirección segura | Vitest | Contratos 200/400/401 y bloqueo de destino externo | `npm run test:integration` |
 | Usando mock | MK-01 y MK-02: alta exitosa y correo duplicado con Supabase simulado | Vitest | Se verifica el payload sin crear usuarios; duplicado retorna 409 | `npm run test:mock` |
-| Aceptación | CA-01 búsqueda; CA-02 filtro por ciudad; CA-03 rechazo de login | Playwright | El usuario completa el recorrido y recibe feedback visible | `cd ../../tcg-frontend/tcg-frontend && npm run test:acceptance` |
+| Aceptación | CA-01 a CA-07: navegación y autenticación; CA-08 a CA-11: operaciones, catálogo y responsive admin | Playwright | Los recorridos críticos y acciones administrativas funcionan por rol | `cd ../../tcg-frontend/tcg-frontend && npm run test:acceptance` |
 | Carga | PF-01: hasta 20 usuarios virtuales en el listado público | k6 | Error < 1 %, p95 < 800 ms, checks > 99 % | `npm run test:load` |
 | Estrés | PF-02: incremento progresivo hasta 150 usuarios virtuales | k6 | Referencia: error < 5 % y p95 < 2 s; registrar punto de degradación | `npm run test:stress` |
 
@@ -28,6 +28,14 @@ Validar las reglas de autenticación y redirección, los contratos HTTP principa
 ### CA-03 — Mostrar un rechazo de autenticación
 
 **Dado** que el servicio rechaza las credenciales, **cuando** la persona envía el login, **entonces** permanece en la página y recibe un error accesible.
+
+### CA-04 a CA-07 — Mostrar acciones según el rol
+
+**Dado** un visitante o jugador, **cuando** abre la navegación, **entonces** no ve “Publicar evento”. **Dada** una tienda o un administrador, **cuando** abre la navegación, **entonces** sí dispone de esa acción.
+
+### CA-08 a CA-11 — Operar el panel administrativo
+
+**Dado** un administrador autenticado, **cuando** abre el panel, **entonces** recibe una cola de trabajo accionable, puede publicar borradores y asignar roles. El catálogo mantiene una clave automática correcta y la interfaz no produce desplazamiento horizontal a 390 px.
 
 ## Preparación y evidencias
 
