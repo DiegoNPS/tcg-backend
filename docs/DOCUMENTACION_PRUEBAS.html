@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Documentación de pruebas - TCG Tournaments</title>
+    <style>
+      :root {
+        --bg: #080c12;
+        --bg-strong: #0b1017;
+        --panel: #121820;
+        --panel-strong: #202733;
+        --panel-soft: #0d131b;
+        --line: #27313f;
+        --line-strong: #3d4b5f;
+        --ink: #f6f8fb;
+        --muted: #aeb9c8;
+        --muted-strong: #c8d3df;
+        --accent: #6aa9f5;
+        --accent-strong: #4c94e8;
+        --accent-soft: rgba(106, 169, 245, 0.14);
+        --warning: #f7c64a;
+        --warning-soft: rgba(247, 198, 74, 0.12);
+        --success: #34d399;
+        --success-soft: rgba(52, 211, 153, 0.12);
+        --danger: #fb7185;
+        --danger-soft: rgba(251, 113, 133, 0.12);
+        --radius: 8px;
+        --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        max-width: 100%;
+        overflow-x: clip;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        max-width: 100%;
+        overflow-x: clip;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 18rem),
+          linear-gradient(180deg, var(--bg-strong) 0%, var(--bg) 44%, #070a0f 100%) fixed;
+        color: var(--ink);
+        font-family: var(--font-sans);
+        line-height: 1.55;
+      }
+
+      a,
+      button,
+      code,
+      h1,
+      h2,
+      h3,
+      p,
+      th,
+      td {
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin-inline: auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid rgba(51, 63, 81, 0.72);
+        background: rgba(8, 12, 18, 0.94);
+        backdrop-filter: blur(18px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        min-height: 68px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .topbar-inner > * {
+        min-width: 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        min-width: 0;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+
+      .brand img {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius);
+        object-fit: contain;
+        background: #0f1622;
+        border: 1px solid var(--line);
+      }
+
+      .brand span {
+        display: block;
+      }
+
+      .brand-name {
+        color: var(--ink);
+        font-size: 0.95rem;
+        font-weight: 800;
+      }
+
+      .brand-meta {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 650;
+      }
+
+      .nav {
+        display: flex;
+        max-width: 100%;
+        min-width: 0;
+        gap: 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav a,
+      .action-link {
+        display: inline-flex;
+        min-height: 38px;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(84, 92, 110, 0.78);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.025);
+        padding: 0 12px;
+        color: #d7e0e7;
+        font-size: 0.84rem;
+        font-weight: 750;
+        text-decoration: none;
+        transition:
+          background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+          border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+          color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .nav a:hover,
+      .action-link:hover {
+        border-color: rgba(106, 169, 245, 0.64);
+        background: rgba(106, 169, 245, 0.11);
+        color: #ffffff;
+      }
+
+      main {
+        padding: 44px 0 72px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+        gap: 28px;
+        align-items: stretch;
+        padding-bottom: 36px;
+      }
+
+      .hero-copy {
+        min-width: 0;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: #8fa0ad;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        color: var(--ink);
+        line-height: 1.16;
+        text-wrap: balance;
+      }
+
+      h1 {
+        max-width: 820px;
+        font-size: 2.75rem;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 1.55rem;
+      }
+
+      h3 {
+        font-size: 1.05rem;
+      }
+
+      .lead {
+        max-width: 72ch;
+        margin: 18px 0 0;
+        color: var(--muted-strong);
+        font-size: 1.04rem;
+        text-wrap: pretty;
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+      }
+
+      .badge {
+        display: inline-flex;
+        min-height: 30px;
+        align-items: center;
+        border: 1px solid rgba(84, 92, 110, 0.74);
+        border-radius: 999px;
+        padding: 0 11px;
+        color: #d7e0e7;
+        font-size: 0.78rem;
+        font-weight: 750;
+        white-space: nowrap;
+      }
+
+      .badge.success {
+        border-color: rgba(52, 211, 153, 0.52);
+        background: var(--success-soft);
+        color: #a7f3d0;
+      }
+
+      .badge.warning {
+        border-color: rgba(247, 198, 74, 0.52);
+        background: var(--warning-soft);
+        color: #ffe1a1;
+      }
+
+      .badge.info {
+        border-color: rgba(106, 169, 245, 0.62);
+        background: var(--accent-soft);
+        color: #b9d9ff;
+      }
+
+      .summary-panel {
+        display: grid;
+        min-width: 0;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        align-content: start;
+        border: 1px solid rgba(79, 91, 111, 0.72);
+        border-radius: var(--radius);
+        background: linear-gradient(180deg, rgba(26, 32, 42, 0.96), rgba(16, 22, 31, 0.96));
+        padding: 18px;
+      }
+
+      .metric {
+        min-width: 0;
+        border: 1px solid rgba(79, 91, 111, 0.56);
+        border-radius: var(--radius);
+        background: rgba(18, 25, 35, 0.74);
+        padding: 14px;
+      }
+
+      .metric strong {
+        display: block;
+        color: var(--ink);
+        font-size: 1.55rem;
+        line-height: 1.1;
+      }
+
+      .metric span {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 650;
+      }
+
+      section {
+        border-top: 1px solid rgba(51, 63, 81, 0.72);
+        padding: 34px 0;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+
+      .section-head p {
+        max-width: 70ch;
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 14px;
+      }
+
+      .panel {
+        border: 1px solid rgba(79, 91, 111, 0.72);
+        border-radius: var(--radius);
+        background: rgba(18, 25, 35, 0.74);
+        padding: 18px;
+      }
+
+      .panel h3 {
+        margin-bottom: 8px;
+      }
+
+      .panel p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .panel .badge {
+        margin-bottom: 12px;
+      }
+
+      .table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        border: 1px solid rgba(79, 91, 111, 0.72);
+        border-radius: var(--radius);
+        background: rgba(14, 20, 29, 0.88);
+      }
+
+      table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(51, 63, 81, 0.72);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: rgba(32, 39, 51, 0.76);
+        color: #e4edf7;
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      td {
+        color: var(--muted-strong);
+        font-size: 0.9rem;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      code {
+        border: 1px solid rgba(71, 84, 105, 0.78);
+        border-radius: 6px;
+        background: #0f1622;
+        padding: 0.15rem 0.36rem;
+        color: #d8e8ff;
+        font-family: var(--font-mono);
+        font-size: 0.86em;
+      }
+
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        border: 1px solid rgba(71, 84, 105, 0.78);
+        border-radius: var(--radius);
+        background: #0f1622;
+        padding: 14px;
+        color: #d8e8ff;
+        font-family: var(--font-mono);
+        font-size: 0.86rem;
+        line-height: 1.6;
+      }
+
+      .command-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .status-list {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .status-list li {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        border: 1px solid rgba(79, 91, 111, 0.56);
+        border-radius: var(--radius);
+        background: rgba(13, 19, 27, 0.72);
+        padding: 12px;
+        color: var(--muted-strong);
+      }
+
+      .marker {
+        display: inline-flex;
+        width: 24px;
+        height: 24px;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: var(--success-soft);
+        color: #a7f3d0;
+        font-size: 0.78rem;
+        font-weight: 900;
+      }
+
+      .marker.warning {
+        background: var(--warning-soft);
+        color: #ffe1a1;
+      }
+
+      .marker.info {
+        background: var(--accent-soft);
+        color: #b9d9ff;
+      }
+
+      .link-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+        gap: 10px;
+      }
+
+      .link-list a {
+        display: flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid rgba(84, 92, 110, 0.78);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.025);
+        padding: 11px 12px;
+        color: #d7e0e7;
+        font-size: 0.88rem;
+        font-weight: 750;
+        text-decoration: none;
+      }
+
+      .link-list a:hover {
+        border-color: rgba(106, 169, 245, 0.64);
+        background: rgba(106, 169, 245, 0.11);
+      }
+
+      .link-list span {
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+      }
+
+      .evidence-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .evidence-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid rgba(79, 91, 111, 0.72);
+        border-radius: var(--radius);
+        background: rgba(18, 25, 35, 0.74);
+      }
+
+      .evidence-card img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-bottom: 1px solid rgba(51, 63, 81, 0.72);
+        background: #252937;
+      }
+
+      .evidence-card figcaption {
+        padding: 12px;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .evidence-card figcaption strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--ink);
+        font-size: 0.9rem;
+      }
+
+      .callout {
+        border: 1px solid rgba(247, 198, 74, 0.42);
+        border-radius: var(--radius);
+        background: var(--warning-soft);
+        padding: 16px;
+        color: #ffe1a1;
+      }
+
+      .footer {
+        border-top: 1px solid rgba(51, 63, 81, 0.72);
+        padding: 24px 0 42px;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      @media (max-width: 860px) {
+        .topbar-inner,
+        .section-head {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        h1 {
+          font-size: 2.1rem;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .shell {
+          width: min(100% - 24px, 1180px);
+        }
+
+        main {
+          padding-top: 30px;
+        }
+
+        .summary-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .command-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+          color: #121820;
+        }
+
+        .topbar {
+          position: static;
+          background: #ffffff;
+        }
+
+        .nav,
+        .action-link {
+          display: none;
+        }
+
+        .panel,
+        .summary-panel,
+        .metric,
+        .table-wrap,
+        pre,
+        .status-list li,
+        .link-list a,
+        .evidence-card,
+        .callout {
+          break-inside: avoid;
+          background: #ffffff;
+          color: #121820;
+        }
+
+        h1,
+        h2,
+        h3,
+        td,
+        th,
+        p,
+        .lead,
+        .brand-name,
+        .brand-meta {
+          color: #121820;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="../../../PRODUCT.md">
+          <img src="../../../tcg-frontend/tcg-frontend/public/brand/tcg-tournaments-logo.png" alt="TCG Tournaments" />
+          <span>
+            <span class="brand-name">TCG Tournaments</span>
+            <span class="brand-meta">Documentación de pruebas</span>
+          </span>
+        </a>
+        <nav class="nav" aria-label="Secciones de la documentación">
+          <a href="#resumen">Resumen</a>
+          <a href="#matriz">Matriz</a>
+          <a href="#casos">Casos</a>
+          <a href="#ejecucion">Ejecución</a>
+          <a href="#comandos">Comandos</a>
+          <a href="#evidencias">Evidencias</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="hero" id="resumen" aria-labelledby="titulo">
+        <div class="hero-copy">
+          <p class="eyebrow">Suite automatizada y documentación técnica</p>
+          <h1 id="titulo">Documentación de pruebas para TCG Tournaments</h1>
+          <p class="lead">
+            Resumen entregable de alcance, casos, comandos de ejecución, resultados verificados y evidencias para el
+            frontend y backend del sistema de torneos TCG.
+          </p>
+          <div class="meta-row" aria-label="Estado general">
+            <span class="badge success">Funcionales aprobadas</span>
+            <span class="badge info">Fecha: 25 de junio de 2026</span>
+            <span class="badge info">Entorno: Windows local</span>
+            <span class="badge warning">k6 ejecutado con alertas p95</span>
+          </div>
+        </div>
+
+        <aside class="summary-panel" aria-label="Resumen de resultados">
+          <div class="metric">
+            <strong>27</strong>
+            <span>pruebas automatizadas aprobadas</span>
+          </div>
+          <div class="metric">
+            <strong>16</strong>
+            <span>pruebas Vitest backend</span>
+          </div>
+          <div class="metric">
+            <strong>11</strong>
+            <span>casos Playwright frontend</span>
+          </div>
+          <div class="metric">
+            <strong>2</strong>
+            <span>pruebas k6 con umbral p95 excedido</span>
+          </div>
+        </aside>
+      </section>
+
+      <section aria-labelledby="alcance">
+        <div class="section-head">
+          <div>
+            <h2 id="alcance">Objetivo y alcance</h2>
+            <p>
+              Las pruebas validan autenticación, autorización por rol, contratos HTTP, navegación pública, panel de
+              administración, responsive móvil y registro con dobles de Supabase.
+            </p>
+          </div>
+          <a class="action-link" href="PLAN_DE_PRUEBAS.md">Ver plan original</a>
+        </div>
+
+        <div class="grid">
+          <article class="panel">
+            <span class="badge info">Backend</span>
+            <h3>Contratos y seguridad</h3>
+            <p>
+              Vitest cubre rutas de login, publicación administrativa, asignación de roles, resolución post-login y
+              registro usando mocks para no tocar datos reales.
+            </p>
+          </article>
+          <article class="panel">
+            <span class="badge info">Frontend</span>
+            <h3>Recorridos de aceptación</h3>
+            <p>
+              Playwright levanta un stack simulado local y valida navegación pública, error de login, permisos por rol
+              y operación del panel administrador.
+            </p>
+          </article>
+          <article class="panel">
+            <span class="badge warning">Rendimiento</span>
+            <h3>Carga y estrés</h3>
+            <p>
+              Los scripts k6 fueron ejecutados localmente. Las validaciones funcionales pasaron sin errores HTTP, pero
+              los umbrales de duración p95 quedaron sobre el objetivo en carga y estrés.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="matriz" aria-labelledby="matriz-titulo">
+        <div class="section-head">
+          <div>
+            <h2 id="matriz-titulo">Matriz de pruebas</h2>
+            <p>Mapa de suites, herramientas, comandos y criterios usados para validar el producto.</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Casos</th>
+                <th>Herramienta</th>
+                <th>Criterio de aprobación</th>
+                <th>Comando</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Unitarias</td>
+                <td>UT-01 a UT-04</td>
+                <td>Vitest</td>
+                <td>Cada perfil llega a su panel esperado; la tienda tiene prioridad sobre el rol.</td>
+                <td><code>npm.cmd run test:unit</code></td>
+              </tr>
+              <tr>
+                <td>Integración</td>
+                <td>IT-01 a IT-10</td>
+                <td>Vitest</td>
+                <td>Contratos 200/400/401/403/404/409 y bloqueo de destinos externos.</td>
+                <td><code>npm.cmd run test:integration</code></td>
+              </tr>
+              <tr>
+                <td>Mocks</td>
+                <td>MK-01 a MK-02</td>
+                <td>Vitest</td>
+                <td>Supabase recibe payload normalizado; correo duplicado responde 409 sin crear usuarios reales.</td>
+                <td><code>npm.cmd run test:mock</code></td>
+              </tr>
+              <tr>
+                <td>Aceptación</td>
+                <td>CA-01 a CA-11</td>
+                <td>Playwright</td>
+                <td>Los recorridos críticos funcionan por rol y la UI admin no desborda en móvil.</td>
+                <td><code>npm.cmd run test:acceptance</code></td>
+              </tr>
+              <tr>
+                <td>Carga</td>
+                <td>PF-01</td>
+                <td>k6</td>
+                <td>Error menor a 1 %, p95 menor a 800 ms y checks sobre 99 %.</td>
+                <td><code>npm.cmd run test:load</code></td>
+              </tr>
+              <tr>
+                <td>Estrés</td>
+                <td>PF-02</td>
+                <td>k6</td>
+                <td>Error menor a 5 %, p95 menor a 2 s y registro del punto de degradación.</td>
+                <td><code>npm.cmd run test:stress</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="casos" aria-labelledby="casos-titulo">
+        <div class="section-head">
+          <div>
+            <h2 id="casos-titulo">Casos documentados</h2>
+            <p>Detalle funcional de los casos automatizados que quedan cubiertos por las suites actuales.</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Área</th>
+                <th>Validación</th>
+                <th>Resultado esperado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>UT-01</td>
+                <td>Post-login</td>
+                <td>Rol <code>jugador</code> sin tienda.</td>
+                <td>Redirige a <code>/jugador/inscripciones</code>.</td>
+              </tr>
+              <tr>
+                <td>UT-02</td>
+                <td>Post-login</td>
+                <td>Rol <code>admin</code> sin tienda.</td>
+                <td>Redirige a <code>/admin</code>.</td>
+              </tr>
+              <tr>
+                <td>UT-03</td>
+                <td>Post-login</td>
+                <td>Usuario sin perfil ni tienda.</td>
+                <td>Redirige a <code>/torneos</code>.</td>
+              </tr>
+              <tr>
+                <td>UT-04</td>
+                <td>Post-login</td>
+                <td>Usuario admin con tienda asociada.</td>
+                <td>Prioriza <code>/tienda/dashboard</code>.</td>
+              </tr>
+              <tr>
+                <td>IT-01</td>
+                <td>Login API</td>
+                <td>Body no JSON.</td>
+                <td>Responde 400 y no consulta Supabase.</td>
+              </tr>
+              <tr>
+                <td>IT-02</td>
+                <td>Login API</td>
+                <td>Email inválido o contraseña vacía.</td>
+                <td>Responde 400 antes de autenticar.</td>
+              </tr>
+              <tr>
+                <td>IT-03</td>
+                <td>Login API</td>
+                <td>Credenciales rechazadas por Supabase.</td>
+                <td>Responde 401 con código estable <code>password-login-failed</code>.</td>
+              </tr>
+              <tr>
+                <td>IT-04</td>
+                <td>Login API</td>
+                <td>Login válido con <code>nextPath</code> interno.</td>
+                <td>Responde 200 y respeta el destino solicitado.</td>
+              </tr>
+              <tr>
+                <td>IT-05</td>
+                <td>Login API</td>
+                <td>Login válido con URL externa como destino.</td>
+                <td>Bloquea el destino y redirige a <code>/torneos</code>.</td>
+              </tr>
+              <tr>
+                <td>IT-06</td>
+                <td>Admin torneos</td>
+                <td>Publicación con sesión no autenticada.</td>
+                <td>Responde 401 y no usa cliente administrativo.</td>
+              </tr>
+              <tr>
+                <td>IT-07</td>
+                <td>Admin torneos</td>
+                <td>Publicación con usuario no administrador.</td>
+                <td>Responde 403.</td>
+              </tr>
+              <tr>
+                <td>IT-08</td>
+                <td>Admin torneos</td>
+                <td>Administrador publica un torneo.</td>
+                <td>Responde 200 y actualiza <code>publicado: true</code>.</td>
+              </tr>
+              <tr>
+                <td>IT-09</td>
+                <td>Admin torneos</td>
+                <td>Administrador intenta publicar torneo inexistente.</td>
+                <td>Responde 404.</td>
+              </tr>
+              <tr>
+                <td>IT-10</td>
+                <td>Admin roles</td>
+                <td>Administrador intenta quitarse su propio rol admin.</td>
+                <td>Responde 409 y bloquea la operación.</td>
+              </tr>
+              <tr>
+                <td>MK-01</td>
+                <td>Registro</td>
+                <td>Alta exitosa con Supabase simulado.</td>
+                <td>Responde 201 y envía metadata normalizada.</td>
+              </tr>
+              <tr>
+                <td>MK-02</td>
+                <td>Registro</td>
+                <td>Correo duplicado simulado.</td>
+                <td>Responde 409 con mensaje de correo en uso.</td>
+              </tr>
+              <tr>
+                <td>CA-01</td>
+                <td>Navegación pública</td>
+                <td>La portada permite comenzar la búsqueda.</td>
+                <td>Llega a <code>/torneos</code> y ve el título "Torneos TCG".</td>
+              </tr>
+              <tr>
+                <td>CA-02</td>
+                <td>Navegación pública</td>
+                <td>Filtro por ciudad.</td>
+                <td>La URL conserva <code>ciudad=Santiago</code>.</td>
+              </tr>
+              <tr>
+                <td>CA-03</td>
+                <td>Login UI</td>
+                <td>Credenciales rechazadas.</td>
+                <td>La persona permanece en login y ve un error accesible.</td>
+              </tr>
+              <tr>
+                <td>CA-04</td>
+                <td>Roles UI</td>
+                <td>Visitante en navegación.</td>
+                <td>No ve "Publicar evento"; sí ve "Crear cuenta".</td>
+              </tr>
+              <tr>
+                <td>CA-05</td>
+                <td>Roles UI</td>
+                <td>Jugador autenticado.</td>
+                <td>No ve "Publicar evento"; sí ve "Mis inscripciones".</td>
+              </tr>
+              <tr>
+                <td>CA-06</td>
+                <td>Roles UI</td>
+                <td>Tienda autenticada.</td>
+                <td>Ve la acción "Publicar evento".</td>
+              </tr>
+              <tr>
+                <td>CA-07</td>
+                <td>Roles UI</td>
+                <td>Administrador autenticado.</td>
+                <td>Ve "Publicar evento" y "Administración".</td>
+              </tr>
+              <tr>
+                <td>CA-08</td>
+                <td>Admin UI</td>
+                <td>Panel administrador.</td>
+                <td>Presenta mesa de trabajo y acciones publicables.</td>
+              </tr>
+              <tr>
+                <td>CA-09</td>
+                <td>Admin UI</td>
+                <td>Clave interna de juego.</td>
+                <td>La clave sigue al nombre hasta edición manual.</td>
+              </tr>
+              <tr>
+                <td>CA-10</td>
+                <td>Admin UI</td>
+                <td>Vista móvil de 390 px.</td>
+                <td>No genera desplazamiento horizontal.</td>
+              </tr>
+              <tr>
+                <td>CA-11</td>
+                <td>Admin UI</td>
+                <td>Publicación de borrador y asignación de roles.</td>
+                <td>Muestra confirmaciones "Torneo publicado." y "Rol actualizado.".</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="ejecucion" aria-labelledby="ejecucion-titulo">
+        <div class="section-head">
+          <div>
+            <h2 id="ejecucion-titulo">Ejecución verificada</h2>
+            <p>
+              Resultados funcionales verificados el 25 de junio de 2026 en Windows. Las evidencias k6 adjuntas
+              corresponden a ejecuciones locales capturadas el 24 de junio de 2026.
+            </p>
+          </div>
+          <a class="action-link" href="../../../tcg-frontend/tcg-frontend/playwright-report/index.html">Abrir reporte Playwright</a>
+        </div>
+
+        <ul class="status-list">
+          <li>
+            <span class="marker">OK</span>
+            <span><strong>Backend Vitest:</strong> 5 archivos aprobados, 16 pruebas aprobadas, 0 fallidas. Duración reportada: 677 ms.</span>
+          </li>
+          <li>
+            <span class="marker">OK</span>
+            <span><strong>Frontend Playwright:</strong> 11 pruebas Chromium aprobadas, 0 fallidas. Duración reportada: 19,9 s.</span>
+          </li>
+          <li>
+            <span class="marker">OK</span>
+            <span><strong>TypeScript:</strong> <code>tsc --noEmit</code> sin errores en backend y frontend.</span>
+          </li>
+          <li>
+            <span class="marker">OK</span>
+            <span><strong>ESLint:</strong> ejecución sin errores en backend y frontend.</span>
+          </li>
+          <li>
+            <span class="marker warning">!</span>
+            <span><strong>k6 carga:</strong> 2.476 checks aprobados, <code>http_req_failed=0.00%</code> y <code>p95=813.42ms</code>; excede el umbral objetivo de 800 ms.</span>
+          </li>
+          <li>
+            <span class="marker warning">!</span>
+            <span><strong>k6 estrés:</strong> 9.992 checks aprobados, <code>http_req_failed=0.00%</code> y <code>p95=2.81s</code>; excede el umbral objetivo de 2 s.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section id="comandos" aria-labelledby="comandos-titulo">
+        <div class="section-head">
+          <div>
+            <h2 id="comandos-titulo">Comandos de reproducción</h2>
+            <p>En PowerShell, <code>npm.cmd</code> evita el bloqueo de ejecución de <code>npm.ps1</code>.</p>
+          </div>
+        </div>
+
+        <div class="command-grid">
+          <article class="panel">
+            <h3>Backend</h3>
+            <pre><code>cd tcg-backend/tcg-backend
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd test</code></pre>
+          </article>
+
+          <article class="panel">
+            <h3>Frontend</h3>
+            <pre><code>cd tcg-frontend/tcg-frontend
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd run test:acceptance</code></pre>
+          </article>
+
+          <article class="panel">
+            <h3>Rendimiento autorizado</h3>
+            <pre><code>cd tcg-backend/tcg-backend
+k6 run -e BASE_URL=https://ambiente-autorizado.example tests/performance/load.js
+k6 run -e BASE_URL=https://ambiente-autorizado.example tests/performance/stress.js</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section id="evidencias" aria-labelledby="evidencias-titulo">
+        <div class="section-head">
+          <div>
+            <h2 id="evidencias-titulo">Evidencias y archivos fuente</h2>
+            <p>Capturas, documentos, specs y reportes que sostienen esta página.</p>
+          </div>
+        </div>
+
+        <div class="evidence-grid" aria-label="Capturas de evidencia">
+          <figure class="evidence-card">
+            <img src="assets/evidencias/01-vitest-y-acceptance-listado.png" alt="Listado de pruebas unitarias, integración, mocks y aceptación aprobadas" />
+            <figcaption>
+              <strong>Vista consolidada de casos aprobados</strong>
+              Evidencia de casos backend y aceptación frontend con estado correcto en el explorador de pruebas.
+            </figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <img src="assets/evidencias/03-vitest-backend-aprobado.png" alt="Salida Vitest con 5 archivos y 16 pruebas aprobadas" />
+            <figcaption>
+              <strong>Vitest backend aprobado</strong>
+              5 archivos y 16 pruebas aprobadas en unitarias, integración y mocks.
+            </figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <img src="assets/evidencias/02-playwright-admin-login.png" alt="Resultados Playwright para login y panel administrador" />
+            <figcaption>
+              <strong>Playwright aceptación</strong>
+              Evidencia visual de casos CA-03 y CA-08 a CA-11 aprobados.
+            </figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <img src="assets/evidencias/04-k6-carga-inicio.png" alt="Inicio de ejecución k6 para prueba de carga" />
+            <figcaption>
+              <strong>Inicio k6 carga</strong>
+              Ejecución local de <code>tests/performance/load.js</code> con escenario de hasta 20 VUs.
+            </figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <img src="assets/evidencias/05-k6-carga-resultados.png" alt="Resultados k6 de prueba de carga con p95 sobre umbral" />
+            <figcaption>
+              <strong>k6 carga: checks OK, latencia alta</strong>
+              100 % de checks aprobados y 0 % de fallos HTTP; p95 de 813.42 ms supera el objetivo de 800 ms.
+            </figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <img src="assets/evidencias/06-k6-carga-umbral.png" alt="Alerta k6 por umbral http_req_duration cruzado en carga" />
+            <figcaption>
+              <strong>Alerta de umbral en carga</strong>
+              La consola reporta que <code>http_req_duration</code> fue cruzado en la prueba de carga.
+            </figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <img src="assets/evidencias/07-k6-estres-inicio.png" alt="Inicio de ejecución k6 para prueba de estrés" />
+            <figcaption>
+              <strong>Inicio k6 estrés</strong>
+              Ejecución local de <code>tests/performance/stress.js</code> con escenario progresivo hasta 150 VUs.
+            </figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <img src="assets/evidencias/08-k6-estres-resultados.png" alt="Resultados k6 de prueba de estrés con p95 sobre umbral" />
+            <figcaption>
+              <strong>k6 estrés: checks OK, p95 excedido</strong>
+              9.992 checks aprobados y 0 % de fallos HTTP; p95 de 2.81 s supera el objetivo de 2 s.
+            </figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <img src="assets/evidencias/09-k6-estres-umbral.png" alt="Error k6 por umbral http_req_duration cruzado en estrés" />
+            <figcaption>
+              <strong>Alerta de umbral en estrés</strong>
+              La consola reporta que el umbral <code>http_req_duration</code> fue cruzado durante la prueba.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="link-list">
+          <a href="PLAN_DE_PRUEBAS.md">Plan de pruebas <span>MD</span></a>
+          <a href="REPORTE_DE_EJECUCION.md">Reporte de ejecución anterior <span>MD</span></a>
+          <a href="../tests/unit/post-login.test.ts">Unitarias post-login <span>TS</span></a>
+          <a href="../tests/integration/login-route.test.ts">Integración login <span>TS</span></a>
+          <a href="../tests/integration/admin-tournament-route.test.ts">Integración admin torneos <span>TS</span></a>
+          <a href="../tests/integration/admin-role-route.test.ts">Integración admin roles <span>TS</span></a>
+          <a href="../tests/mock/register-route.mock.test.ts">Mocks de registro <span>TS</span></a>
+          <a href="../../../tcg-frontend/tcg-frontend/tests/acceptance/public-navigation.spec.ts">Aceptación navegación <span>TS</span></a>
+          <a href="../../../tcg-frontend/tcg-frontend/tests/acceptance/login.spec.ts">Aceptación login <span>TS</span></a>
+          <a href="../../../tcg-frontend/tcg-frontend/tests/acceptance/role-navigation.spec.ts">Aceptación roles <span>TS</span></a>
+          <a href="../../../tcg-frontend/tcg-frontend/tests/acceptance/admin-dashboard.spec.ts">Aceptación admin <span>TS</span></a>
+          <a href="../../../tcg-frontend/tcg-frontend/playwright-report/index.html">Reporte HTML Playwright <span>HTML</span></a>
+          <a href="assets/evidencias/04-k6-carga-inicio.png">Inicio k6 carga <span>PNG</span></a>
+          <a href="assets/evidencias/06-k6-carga-umbral.png">Umbral k6 carga <span>PNG</span></a>
+          <a href="assets/evidencias/07-k6-estres-inicio.png">Inicio k6 estrés <span>PNG</span></a>
+        </div>
+
+        <div class="callout" style="margin-top: 16px">
+          Las capturas de k6 muestran disponibilidad funcional y ausencia de fallos HTTP, pero no aprobación de
+          rendimiento: carga y estrés exceden su umbral p95. No ejecutar carga o estrés contra producción sin aprobación
+          explícita.
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="shell">
+        Documento generado para TCG Tournaments. Mantener sincronizado con los specs en <code>tests/</code> y con los
+        reportes de ejecución de cada entrega.
+      </div>
+    </footer>
+  </body>
+</html>
