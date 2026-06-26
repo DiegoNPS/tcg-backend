@@ -93,3 +93,67 @@ export async function GET(_request: Request, context: RouteContext) {
     { status: 200 },
   );
 }
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  const { id } = await context.params;
+  const parsed = idSchema.safeParse(id);
+
+  if (!parsed.success) {
+    return Response.json({ error: "ID de torneo invalido" }, { status: 400 });
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return Response.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const { data: torneo, error: torneoError } = await supabase
+    .from("torneos")
+    .select("id, tienda_id")
+    .eq("id", parsed.data)
+    .maybeSingle();
+
+  if (torneoError) {
+    return Response.json({ error: "No se pudo consultar el torneo" }, { status: 500 });
+  }
+
+  if (!torneo) {
+    return Response.json({ error: "Torneo no encontrado" }, { status: 404 });
+  }
+
+  const { data: tienda, error: tiendaError } = await supabase
+    .from("tiendas")
+    .select("owner_id")
+    .eq("id", torneo.tienda_id)
+    .maybeSingle();
+
+  if (tiendaError) {
+    return Response.json({ error: "No se pudo validar la tienda" }, { status: 500 });
+  }
+
+  if (!tienda || tienda.owner_id !== user.id) {
+    return Response.json({ error: "No tienes acceso a este torneo" }, { status: 403 });
+  }
+
+  const { data: deleted, error: deleteError } = await supabase
+    .from("torneos")
+    .delete()
+    .eq("id", parsed.data)
+    .select("id")
+    .maybeSingle();
+
+  if (deleteError) {
+    return Response.json({ error: "No se pudo eliminar el torneo" }, { status: 500 });
+  }
+
+  if (!deleted) {
+    return Response.json({ error: "Torneo no encontrado" }, { status: 404 });
+  }
+
+  return Response.json({ data: deleted }, { status: 200 });
+}
