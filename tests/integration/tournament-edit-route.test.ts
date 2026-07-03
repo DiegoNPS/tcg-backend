@@ -113,10 +113,88 @@ describe("PUT /api/torneos/:id/editar", () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.data.titulo).toBe("Commander Night Editado");
-    // Verificamos que update fue llamado (no solo que el status sea 200)
-    expect(upd.update).toHaveBeenCalled();
+    // Verifica que todos los atributos llegan normalizados al UPDATE y que
+    // los opcionales ausentes conservan una representación consistente.
+    expect(upd.update).toHaveBeenCalledWith({
+      titulo: "Commander Night Editado",
+      descripcion: "Descripción actualizada del torneo",
+      juego_id: null,
+      categoria_id: null,
+      direccion: "Av. Nueva 456, Santiago",
+      fecha_inicio: "2026-08-01T18:00:00.000Z",
+      cupo_maximo: 32,
+      costo_entrada: 500,
+      publicado: false,
+      latitud: null,
+      longitud: null,
+      imagen_url: null,
+    });
     // Verificamos que el WHERE apuntó al torneo correcto
     expect(upd.eq).toHaveBeenCalledWith("id", TOURNAMENT_ID);
+  });
+
+  it.each([
+    ["título vacío", { ...validBody, titulo: "   " }, "titulo"],
+    [
+      "título demasiado largo",
+      { ...validBody, titulo: "T".repeat(101) },
+      "titulo",
+    ],
+    [
+      "descripción vacía",
+      { ...validBody, descripcion: "   " },
+      "descripcion",
+    ],
+    [
+      "descripción demasiado larga",
+      { ...validBody, descripcion: "D".repeat(1201) },
+      "descripcion",
+    ],
+    ["dirección vacía", { ...validBody, direccion: "   " }, "direccion"],
+    ["fecha inexistente", { ...validBody, fecha_inicio: "no-es-fecha" }, null],
+    ["cupo inferior al mínimo", { ...validBody, cupo_maximo: 1 }, "cupo_maximo"],
+    ["cupo no entero", { ...validBody, cupo_maximo: 2.5 }, "cupo_maximo"],
+    [
+      "costo negativo",
+      { ...validBody, costo_entrada: -1 },
+      "costo_entrada",
+    ],
+    [
+      "costo superior al máximo",
+      { ...validBody, costo_entrada: 1_000_001 },
+      "costo_entrada",
+    ],
+  ])("protege la integridad cuando recibe %s", async (_, invalidBody, expectedField) => {
+    const torneoQ = maybeSingleOf({ tienda_id: STORE_ID });
+    const tiendaQ = maybeSingleOf({ id: STORE_ID });
+    const upd = updateOf(null);
+
+    createClientMock.mockResolvedValue({
+      auth: authOf(USER_ID),
+      from: vi.fn((table: string) => {
+        if (table === "torneos") return { select: torneoQ.select, update: upd.update };
+        if (table === "tiendas") return { select: tiendaQ.select };
+        return {};
+      }),
+    });
+
+    const req = new Request(`http://localhost:3001/api/torneos/${TOURNAMENT_ID}/editar`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(invalidBody),
+    });
+    const response = await PUT(req, context());
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(upd.update).not.toHaveBeenCalled();
+
+    if (expectedField) {
+      expect(body.error).toBe("Datos inválidos");
+      expect(body.fieldErrors).toHaveProperty(expectedField);
+    } else {
+      expect(body.error).toBe("Fecha no válida");
+    }
   });
 
   it("rechaza la edición si el usuario no es dueño de la tienda del torneo", async () => {
