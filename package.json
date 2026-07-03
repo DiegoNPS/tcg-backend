@@ -12,6 +12,9 @@
     "test:watch": "vitest",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
+    "test:database": "supabase test db",
+    "test:integration:real": "node tests/fixtures/run-real-integration.mjs",
+    "test:local": "supabase db reset && npm run test:database && npm run test:integration:real",
     "test:mock": "vitest run tests/mock",
     "test:load": "k6 run tests/performance/load.js",
     "test:stress": "k6 run tests/performance/stress.js"
@@ -30,6 +33,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "supabase": "^2.109.0",
     "typescript": "^5",
     "vitest": "^4.1.9"
   },
